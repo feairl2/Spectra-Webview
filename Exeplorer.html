@@ -1,45 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
+        :root {
+            --bg-color: #101010;
+            --input-bg: #1e1e1e;
+            --hover-bg: #2a2d2e;
+            --text-main: #d4d4d4;
+            --text-dim: #666;
+            --radius: 8px; /* 小圓角設定 */
+        }
+
         body {
-            background-color: #101010;
-            color: #d4d4d4;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0; padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 15px; /* 統一左右間距 */
             user-select: none;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
         .title {
             font-size: 11px;
-            color: #666;
+            color: var(--text-dim);
             text-transform: uppercase;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+            letter-spacing: 1.2px;
+            font-weight: 600;
         }
+
+        .controls {
+            display: flex;
+            gap: 8px; /* 搜尋與按鈕的間距 */
+            margin-bottom: 15px;
+        }
+
         #search {
-            width: calc(100% - 10px);
-            background: #1e1e1e;
+            flex-grow: 1;
+            background: var(--input-bg);
             border: 1px solid #333;
-            color: #ccc;
-            padding: 5px;
+            border-radius: var(--radius);
+            color: white;
+            padding: 6px 12px;
             font-size: 13px;
-            margin-bottom: 10px;
+            outline: none;
+            transition: border 0.2s;
         }
-        .file-list { margin: 0; padding: 0; list-style: none; }
+
+        #search:focus { border-color: #0078d4; }
+
+        .refresh-btn {
+            background: var(--input-bg);
+            border: 1px solid #333;
+            border-radius: var(--radius);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover { background: var(--hover-bg); }
+
+        .file-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
         .file-item {
-            padding: 5px 8px;
+            padding: 8px 12px;
             cursor: pointer;
             font-size: 13px;
+            border-radius: var(--radius); /* 檔案項目也套用圓角 */
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            transition: background 0.2s;
         }
-        .file-item:hover { background-color: #2a2d2e; }
+
+        .file-item:hover { background-color: var(--hover-bg); }
     </style>
 </head>
 <body>
-    <div class="title">Explorer</div>
-    <input type="text" id="search" placeholder="Filter..." onkeyup="filter()">
+
+    <div class="header">
+        <div class="title">Explorer</div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="search" placeholder="搜尋腳本..." onkeyup="filter()">
+        <button class="refresh-btn" onclick="refreshList()" title="重新整理">↻</button>
+    </div>
+
     <div class="file-list" id="list"></div>
 
     <script>
@@ -50,7 +114,10 @@
             });
         }
 
-        // 由 C# 呼叫此 function 傳入檔案陣列
+        function refreshList() {
+            window.chrome.webview.postMessage({ action: 'refresh' });
+        }
+
         function setFiles(files) {
             const container = document.getElementById('list');
             container.innerHTML = files.map(f => 
@@ -59,7 +126,6 @@
         }
 
         function openFile(name) {
-            // 向 C# 發送訊息
             window.chrome.webview.postMessage({ action: 'load', fileName: name });
         }
     </script>
