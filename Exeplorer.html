@@ -10,6 +10,7 @@
             --text-main: #d4d4d4;
             --text-dim: #666;
             --accent: #0078d4;
+            --line-color: rgb(35, 35, 35);
             --radius: 8px;
             --side-gap: 8px;
         }
@@ -19,32 +20,52 @@
             margin: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
+            /* 需求 1: 最左邊 1px 線 */
+            border-left: 1px solid var(--line-color);
         }
 
         .main-container {
             display: flex;
             flex-direction: column;
             height: 100%;
-            padding: 20px var(--side-gap);
             box-sizing: border-box;
         }
 
+        /* 頂部標題區 */
         .header-label {
             font-size: 11px;
             color: var(--text-dim);
             text-transform: uppercase;
-            pandding-left: 5px
             letter-spacing: 2px;
-            margin-bottom: 12px;
             font-weight: bold;
+            padding: 15px calc(var(--side-gap) + 5px);
+            /* 需求 3: 第一條橫線 */
+            border-bottom: 1px solid var(--line-color);
         }
 
-        .search-bar {
+        /* 搜尋區塊：調整上下 padding 確保間距一致 */
+        .search-container {
+            padding: 15px var(--side-gap);
+            /* 需求 3: 第二條橫線 (搜尋區下方) */
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .search-wrapper {
+            position: relative;
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        /* 需求 2: 搜尋內框左側 SVG Icon */
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 14px;
+            height: 14px;
+            fill: var(--text-dim);
+            pointer-events: none;
         }
 
         #search {
@@ -53,38 +74,55 @@
             border: 1px solid #333;
             border-radius: var(--radius);
             color: white;
-            padding: 0 15px;
+            padding: 0 10px 0 32px;
             height: 32px;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
+            transition: border-color 0.2s;
         }
 
-        #search:focus { border-color: rgb(150,150,150,1); }
+        #search:focus { border-color: #555; }
 
+        /* 列表區 */
         .file-list {
             flex: 1;
             overflow-y: auto;
             margin: 0;
-            padding: 0;
+            padding: 10px var(--side-gap);
             list-style: none;
         }
 
         .file-item {
-            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
             background: transparent;
             border-radius: var(--radius);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s;
+            transition: background 0.2s;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        /* 需求 4: 列表左側 SVG Icon */
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            fill: var(--text-dim);
+            flex-shrink: 0;
+        }
+
         .file-item:hover {
-            background: #252525;
+            background: var(--hover-bg);
             color: white;
+        }
+
+        .file-item:hover .file-icon {
+            fill: white;
         }
 
         .file-list::-webkit-scrollbar { width: 6px; }
@@ -96,9 +134,11 @@
     <div class="main-container">
         <div class="header-label">Explorer</div>
 
-        <div class="search-bar">
-            <input type="text" id="search" placeholder="Search Scripts..." onkeyup="filter()">
-        
+        <div class="search-container">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="search" placeholder="Search Scripts..." onkeyup="filter()">
+            </div>
         </div>
 
         <div class="file-list" id="list">
@@ -106,27 +146,37 @@
     </div>
 
     <script>
+        // 用於生成帶有圖標的 HTML 字串
+        const fileIconSvg = `<svg class="file-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
+
         function filter() {
             const q = document.getElementById('search').value.toLowerCase();
             document.querySelectorAll('.file-item').forEach(i => {
-                i.style.display = i.textContent.toLowerCase().includes(q) ? '' : 'none';
+                i.style.display = i.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
             });
         }
 
         function refreshList() {
-            window.chrome.webview.postMessage({ action: 'refresh' });
+            if(window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({ action: 'refresh' });
+            }
         }
 
         function setFiles(files) {
             const list = document.getElementById('list');
             list.innerHTML = files.map(f => 
-                `<div class="file-item" onclick="openFile('${f}')">${f}</div>`
+                `<div class="file-item" onclick="openFile('${f}')">${fileIconSvg}<span>${f}</span></div>`
             ).join('');
         }
 
         function openFile(n) {
-            window.chrome.webview.postMessage({ action: 'load', fileName: n });
+            if(window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({ action: 'load', fileName: n });
+            }
         }
+
+        // 測試範例（實際使用時由 WebView 調用 setFiles）
+        // setFiles(['Script_v1.lua', 'AutoFarm.lua', 'Teleport.lua']);
     </script>
 </body>
 </html>
