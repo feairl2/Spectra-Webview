@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #101010;
+            color: #d4d4d4;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 10px;
+            user-select: none;
+        }
+        .title {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        #search {
+            width: calc(100% - 10px);
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: #ccc;
+            padding: 5px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .file-list { margin: 0; padding: 0; list-style: none; }
+        .file-item {
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-item:hover { background-color: #2a2d2e; }
+    </style>
+</head>
+<body>
+    <div class="title">Explorer</div>
+    <input type="text" id="search" placeholder="Filter..." onkeyup="filter()">
+    <div class="file-list" id="list"></div>
+
+    <script>
+        function filter() {
+            const query = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.file-item').forEach(el => {
+                el.style.display = el.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        // 由 C# 呼叫此 function 傳入檔案陣列
+        function setFiles(files) {
+            const container = document.getElementById('list');
+            container.innerHTML = files.map(f => 
+                `<div class="file-item" onclick="openFile('${f}')">${f}</div>`
+            ).join('');
+        }
+
+        function openFile(name) {
+            // 向 C# 發送訊息
+            window.chrome.webview.postMessage({ action: 'load', fileName: name });
+        }
+    </script>
+</body>
+</html>
