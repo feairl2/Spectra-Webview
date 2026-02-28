@@ -32,7 +32,6 @@
             box-sizing: border-box;
         }
 
-        /* 頂部標題區 */
         .header-label {
             font-size: 11px;
             color: var(--text-dim);
@@ -40,14 +39,11 @@
             letter-spacing: 2px;
             font-weight: bold;
             padding: 15px calc(var(--side-gap) + 5px);
-            /* 需求 3: 第一條橫線 */
             border-bottom: 1px solid var(--line-color);
         }
 
-        /* 搜尋區塊：調整上下 padding 確保間距一致 */
         .search-container {
             padding: 15px var(--side-gap);
-            /* 需求 3: 第二條橫線 (搜尋區下方) */
             border-bottom: 1px solid var(--line-color);
         }
 
@@ -57,7 +53,6 @@
             align-items: center;
         }
 
-        /* 需求 2: 搜尋內框左側 SVG Icon */
         .search-icon {
             position: absolute;
             left: 10px;
@@ -82,7 +77,6 @@
 
         #search:focus { border-color: #555; }
 
-        /* 列表區 */
         .file-list {
             flex: 1;
             overflow-y: auto;
@@ -106,7 +100,6 @@
             text-overflow: ellipsis;
         }
 
-        /* 需求 4: 列表左側 SVG Icon */
         .file-icon {
             width: 16px;
             height: 16px;
@@ -116,7 +109,7 @@
         }
 
         .file-item:hover {
-            background: var(--hover-bg);
+            background: #252525;
             color: white;
         }
 
@@ -145,7 +138,6 @@
     </div>
 
     <script>
-        // 用於生成帶有圖標的 HTML 字串
         const fileIconSvg = `<svg class="file-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`;
 
         function filter() {
@@ -173,9 +165,6 @@
                 window.chrome.webview.postMessage({ action: 'load', fileName: n });
             }
         }
-
-        // 測試範例（實際使用時由 WebView 調用 setFiles）
-        // setFiles(['Script_v1.lua', 'AutoFarm.lua', 'Teleport.lua']);
     </script>
 </body>
 </html>
