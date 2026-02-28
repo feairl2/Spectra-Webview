@@ -17,7 +17,7 @@
             color: var(--text-main);
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
-            padding: 15px; /* 統一左右間距 */
+            padding: 15px;
             user-select: none;
         }
 
@@ -80,7 +80,7 @@
             padding: 8px 12px;
             cursor: pointer;
             font-size: 13px;
-            border-radius: var(--radius); /* 檔案項目也套用圓角 */
+            border-radius: var(--radius);
             margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
@@ -98,8 +98,8 @@
     </div>
 
     <div class="controls">
-        <input type="text" id="search" placeholder="搜尋腳本..." onkeyup="filter()">
-        <button class="refresh-btn" onclick="refreshList()" title="重新整理">↻</button>
+        <input type="text" id="search" placeholder="Search Scripts" onkeyup="filter()">
+        <button class="refresh-btn" onclick="refreshList()" title="Refresh">↻</button>
     </div>
 
     <div class="file-list" id="list"></div>
