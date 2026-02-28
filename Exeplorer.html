@@ -43,7 +43,6 @@
             padding: 0 var(--side-padding);
         }
 
-        /* Search Row: Floating Style */
         .search-row {
             display: flex;
             gap: 12px;
@@ -60,7 +59,7 @@
             width: 100%;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 6px;
             color: white;
             padding: 10px 14px;
             font-size: 13px;
@@ -75,14 +74,13 @@
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
         }
 
-        /* Refresh Button: Ghost Circle */
         .refresh-btn {
             flex-shrink: 0;
             width: 38px;
             height: 38px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background: #101010;
+            border: 1px solid #101010;
+            border-radius: 10px;
             color: var(--text-main);
             cursor: pointer;
             display: flex;
@@ -92,13 +90,12 @@
         }
 
         .refresh-btn:hover {
-            background: var(--surface-hover);
-            transform: rotate(15deg);
+            transform: rotate(80deg);
         }
 
         .refresh-btn svg {
-            width: 18px;
-            height: 18px;
+            width: 28px;
+            height: 28px;
             stroke-width: 2;
         }
 
