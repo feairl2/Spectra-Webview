@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap');
-
         :root {
             --bg-color: #101010;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.08);
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #e0e0e0;
-            --text-mute: #606060;
-            --accent: #3b82f6; /* Modern Blue */
-            --side-padding: 20px;
+            --input-bg: #1e1e1e;
+            --hover-bg: #2a2d2e;
+            --text-main: #d4d4d4;
+            --text-dim: #666;
+            --accent: #0078d4;
+            --radius: 8px;
+            --side-gap: 15px; /* 這裡控制整體的左右間距 */
         }
 
         html, body {
@@ -21,138 +19,121 @@
             margin: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
 
-        .container {
+        /* 主容器：確保所有東西上下排列並對齊左右 */
+        .main-container {
             display: flex;
             flex-direction: column;
             height: 100%;
-            padding: 24px 0;
+            padding: 20px var(--side-gap); /* 上下 20, 左右 15 */
             box-sizing: border-box;
         }
 
-        .title {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-mute);
+        .header-label {
+            font-size: 11px;
+            color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            padding: 0 var(--side-padding);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            font-weight: bold;
         }
 
-        .search-row {
+        /* 搜尋列與按鈕組合 */
+        .search-bar {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding: 0 var(--side-padding);
-        }
-
-        .input-wrapper {
-            position: relative;
-            flex: 1;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         #search {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid #333;
+            border-radius: var(--radius);
             color: white;
-            padding: 10px 0px;
-            font-size: 13px;
+            padding: 0 15px;
+            height: 38px; /* 固定高度 */
+            font-size: 14px;
             outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-sizing: border-box;
         }
 
-        #search:focus {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
-        }
+        #search:focus { border-color: var(--accent); }
 
+        /* 重新整理按鈕 - 強化視覺版 */
         .refresh-btn {
             flex-shrink: 0;
-            width: 30px;
-            height: 30px;
-            background: #101010;
-            border: 1px solid #101010;
-            border-radius: 10px;
-            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            background: var(--input-bg);
+            border: 1px solid #333;
+            border-radius: var(--radius);
+            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            padding: 0;
+            transition: all 0.2s;
         }
 
-        .refresh-btn:hover {
-            transform: rotate(180deg);
-        }
-
+        .refresh-btn:hover { background: var(--hover-bg); border-color: #444; }
+        
+        /* 讓圖示變大的關鍵 */
         .refresh-btn svg {
-            width: 17px;
+            width: 17px; 
             height: 17px;
-            stroke-width: 2;
+            stroke-width: 2.5; /* 線條加粗 */
         }
 
+        /* 腳本列表：自動填滿剩下空間 */
         .file-list {
             flex: 1;
             overflow-y: auto;
-            padding: 0 12px;
+            margin: 0;
+            padding: 0;
             list-style: none;
         }
 
-        .file-list::-webkit-scrollbar { display: none; }
-
         .file-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 10px;
-            margin-bottom: 4px;
-            border-radius: 6px;
+            padding: 12px 15px;
+            background: transparent;
+            border-radius: var(--radius);
+            margin-bottom: 5px;
             cursor: pointer;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace; /* Professional look */
-            color: #b0b0b0;
+            font-size: 14px;
             transition: all 0.2s;
-            border: 1px solid transparent;
+            /* 確保文字不會超出範圍 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .file-item:hover {
-            background: #202020
-            color: #ffffff;
+            background: var(--hover-bg);
+            color: white;
         }
 
-        .file-item::before {
-            background: #252525
-            content: "•";
-            color: var(--accent);
-            margin-right: 12px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .file-item:hover::before {
-            opacity: 1;
-        }
+        /* 捲軸美化 */
+        .file-list::-webkit-scrollbar { width: 6px; }
+        .file-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="title">Explorer</div>
+    <div class="main-container">
+        <div class="header-label">Explorer</div>
 
-        <div class="search-row">
-            <div class="input-wrapper">
-                <input type="text" id="search" placeholder="Type to search..." onkeyup="filter()">
-            </div>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search Scripts..." onkeyup="filter()">
+            
             <button class="refresh-btn" onclick="refreshList()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
             </button>
         </div>
@@ -164,26 +145,24 @@
     <script>
         function filter() {
             const q = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.file-item').forEach(el => {
-                el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+            document.querySelectorAll('.file-item').forEach(i => {
+                i.style.display = i.textContent.toLowerCase().includes(q) ? '' : 'none';
             });
         }
 
         function refreshList() {
-            if (window.chrome?.webview) window.chrome.webview.postMessage({ action: 'refresh' });
+            window.chrome.webview.postMessage({ action: 'refresh' });
         }
 
         function setFiles(files) {
             const list = document.getElementById('list');
-            if (!files?.length) {
-                list.innerHTML = '<div style="padding:20px; color:#444; font-size:12px;">No active scripts</div>';
-                return;
-            }
-            list.innerHTML = files.map(f => `<div class="file-item" onclick="openFile('${f}')">${f}</div>`).join('');
+            list.innerHTML = files.map(f => 
+                `<div class="file-item" onclick="openFile('${f}')">${f}</div>`
+            ).join('');
         }
 
-        function openFile(name) {
-            if (window.chrome?.webview) window.chrome.webview.postMessage({ action: 'load', fileName: name });
+        function openFile(n) {
+            window.chrome.webview.postMessage({ action: 'load', fileName: n });
         }
     </script>
 </body>
