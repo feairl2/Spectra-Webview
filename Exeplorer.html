@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
             --bg-color: #101010;
@@ -9,81 +10,114 @@
             --hover-bg: #2a2d2e;
             --text-main: #d4d4d4;
             --text-dim: #666;
-            --radius: 6px;
+            --accent: #0078d4;
+            --radius: 8px;
+            /* Global padding to ensure perfect alignment */
+            --side-padding: 16px; 
         }
 
-        body {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 15px;
-            user-select: none;
-        }
-
-        .header {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            flex-direction: column;
         }
 
+        /* Main Container for vertical layout */
+        .explorer-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding-top: 20px;
+        }
+
+        /* Title Alignment */
         .title {
             font-size: 11px;
             color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.5px;
             font-weight: 600;
+            margin-bottom: 12px;
+            padding: 0 var(--side-padding);
         }
 
-        .controls {
+        .search-row {
             display: flex;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            padding: 0 var(--side-padding);
         }
 
-        #search {
-            flex-grow: 1;
+            flex: 1;
             background: var(--input-bg);
             border: 1px solid #333;
             border-radius: var(--radius);
             color: white;
-            padding: 6px 10px;
+            padding: 8px 12px;
             font-size: 13px;
             outline: none;
-            transition: border 0.2s;
+            transition: border-color 0.2s;
         }
 
-        #search:focus { border-color: #fffff; }
+        #search:focus {
+            border-color: var(--accent);
+        }
 
         .refresh-btn {
-            background: #101010;
-            border: 1px solid #101010;
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            background: var(--input-bg);
+            border: 1px solid #333;
             border-radius: var(--radius);
             color: var(--text-main);
-            width: 35px;
-            height: 35px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--hover-bg);
+            border-color: #444;
         }
 
         .refresh-btn svg {
-            width: 25px; 
-            height: 25px;
-            stroke-width: 2.5;
+            width: 26px;
+            height: 26px;
+            stroke-width: 2.5; /* Thick line for visibility */
         }
 
         .file-list {
+            flex: 1;
+            overflow-y: auto;
             margin: 0;
-            padding: 0;
+            /* Padding inside list to align items with search bar */
+            padding: 0 calc(var(--side-padding) - 4px); 
             list-style: none;
         }
 
+        /* Custom Scrollbar */
+        .file-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .file-list::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
         .file-item {
-            padding: 8px 5px;
+            padding: 10px 12px;
             cursor: pointer;
             font-size: 13px;
             border-radius: var(--radius);
@@ -91,30 +125,38 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
+            color: var(--text-main);
         }
 
-        .file-item:hover 
-        {
-            background-color: #202020; 
-            border: 1px soild #808080
+        .file-item:hover {
+            background-color: var(--hover-bg);
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
+    <div class="explorer-container">
         <div class="title">Explorer</div>
-    </div>
 
-    <div class="controls">
-        <input type="text" id="search" placeholder="Search Scripts" onkeyup="filter()">
-        <button class="refresh-btn" onclick="refreshList()" title="Refresh">↻</button>
-    </div>
+        <div class="search-row">
+            <input type="text" id="search" placeholder="Search scripts..." onkeyup="filter()">
+            <button class="refresh-btn" onclick="refreshList()" title="Refresh">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+            </button>
+        </div>
 
-    <div class="file-list" id="list"></div>
+        <div class="file-list" id="list">
+            </div>
+    </div>
 
     <script>
+        // Filter functionality
         function filter() {
             const query = document.getElementById('search').value.toLowerCase();
             document.querySelectorAll('.file-item').forEach(el => {
@@ -122,19 +164,30 @@
             });
         }
 
+        // Notify C# to refresh the file list
         function refreshList() {
-            window.chrome.webview.postMessage({ action: 'refresh' });
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({ action: 'refresh' });
+            }
         }
 
+        // Injected by C#
         function setFiles(files) {
             const container = document.getElementById('list');
+            if (!files || files.length === 0) {
+                container.innerHTML = '<div style="padding:10px; color:#555; font-size:12px;">No scripts found.</div>';
+                return;
+            }
             container.innerHTML = files.map(f => 
                 `<div class="file-item" onclick="openFile('${f}')">${f}</div>`
             ).join('');
         }
 
+        // Notify C# to load file content
         function openFile(name) {
-            window.chrome.webview.postMessage({ action: 'load', fileName: name });
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({ action: 'load', fileName: name });
+            }
         }
     </script>
 </body>
