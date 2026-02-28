@@ -2,151 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap');
+
         :root {
-            --bg-color: #101010;
-            --input-bg: #1e1e1e;
-            --hover-bg: #2a2d2e;
-            --text-main: #d4d4d4;
-            --text-dim: #666;
-            --accent: #0078d4;
-            --radius: 8px;
-            /* Global padding to ensure perfect alignment */
-            --side-padding: 16px; 
+            --bg-color: #0a0a0a;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #e0e0e0;
+            --text-mute: #606060;
+            --accent: #3b82f6; /* Modern Blue */
+            --side-padding: 20px;
         }
 
         html, body {
             height: 100%;
             margin: 0;
-            padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* Main Container for vertical layout */
-        .explorer-container {
+        .container {
             display: flex;
             flex-direction: column;
             height: 100%;
-            width: 100%;
+            padding: 24px 0;
             box-sizing: border-box;
-            padding-top: 20px;
         }
 
-        /* Title Alignment */
         .title {
-            font-size: 11px;
-            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-mute);
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-            margin-bottom: 12px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
             padding: 0 var(--side-padding);
         }
 
+        /* Search Row: Floating Style */
         .search-row {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-bottom: 24px;
             padding: 0 var(--side-padding);
         }
 
+        .input-wrapper {
+            position: relative;
             flex: 1;
-            background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: var(--radius);
+        }
+
+        #search {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             color: white;
-            padding: 8px 12px;
+            padding: 10px 14px;
             font-size: 13px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
         }
 
         #search:focus {
+            background: rgba(255, 255, 255, 0.05);
             border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
         }
 
+        /* Refresh Button: Ghost Circle */
         .refresh-btn {
             flex-shrink: 0;
-            width: 34px;
-            height: 34px;
-            background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: var(--radius);
+            width: 38px;
+            height: 38px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             color: var(--text-main);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
         .refresh-btn:hover {
-            background: var(--hover-bg);
-            border-color: #444;
+            background: var(--surface-hover);
+            transform: rotate(15deg);
         }
 
         .refresh-btn svg {
-            width: 26px;
-            height: 26px;
-            stroke-width: 2.5; /* Thick line for visibility */
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
         }
 
+        /* List: Subtle & Smooth */
         .file-list {
             flex: 1;
             overflow-y: auto;
-            margin: 0;
-            /* Padding inside list to align items with search bar */
-            padding: 0 calc(var(--side-padding) - 4px); 
+            padding: 0 12px; /* Slightly tighter than search for visual hierarchy */
             list-style: none;
         }
 
-        /* Custom Scrollbar */
-        .file-list::-webkit-scrollbar {
-            width: 4px;
-        }
-        .file-list::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 10px;
-        }
+        /* Hide scrollbar but allow scrolling */
+        .file-list::-webkit-scrollbar { display: none; }
 
         .file-item {
-            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            margin-bottom: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 13px;
-            border-radius: var(--radius);
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: background 0.2s, color 0.2s;
-            color: var(--text-main);
+            font-size: 13.5px;
+            font-family: 'JetBrains Mono', monospace; /* Professional look */
+            color: #b0b0b0;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
 
         .file-item:hover {
-            background-color: var(--hover-bg);
+            background: var(--surface-hover);
             color: #ffffff;
+            padding-left: 18px; /* Smooth shift */
+        }
+
+        .file-item::before {
+            content: "•";
+            color: var(--accent);
+            margin-right: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .file-item:hover::before {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
 
-    <div class="explorer-container">
+    <div class="container">
         <div class="title">Explorer</div>
 
         <div class="search-row">
-            <input type="text" id="search" placeholder="Search scripts..." onkeyup="filter()">
-            <button class="refresh-btn" onclick="refreshList()" title="Refresh">
+            <div class="input-wrapper">
+                <input type="text" id="search" placeholder="Type to search..." onkeyup="filter()">
+            </div>
+            <button class="refresh-btn" onclick="refreshList()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6"></path>
-                    <path d="M1 20v-6h6"></path>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
             </button>
         </div>
@@ -156,38 +167,28 @@
     </div>
 
     <script>
-        // Filter functionality
         function filter() {
-            const query = document.getElementById('search').value.toLowerCase();
+            const q = document.getElementById('search').value.toLowerCase();
             document.querySelectorAll('.file-item').forEach(el => {
-                el.style.display = el.textContent.toLowerCase().includes(query) ? '' : 'none';
+                el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
             });
         }
 
-        // Notify C# to refresh the file list
         function refreshList() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({ action: 'refresh' });
-            }
+            if (window.chrome?.webview) window.chrome.webview.postMessage({ action: 'refresh' });
         }
 
-        // Injected by C#
         function setFiles(files) {
-            const container = document.getElementById('list');
-            if (!files || files.length === 0) {
-                container.innerHTML = '<div style="padding:10px; color:#555; font-size:12px;">No scripts found.</div>';
+            const list = document.getElementById('list');
+            if (!files?.length) {
+                list.innerHTML = '<div style="padding:20px; color:#444; font-size:12px;">No active scripts</div>';
                 return;
             }
-            container.innerHTML = files.map(f => 
-                `<div class="file-item" onclick="openFile('${f}')">${f}</div>`
-            ).join('');
+            list.innerHTML = files.map(f => `<div class="file-item" onclick="openFile('${f}')">${f}</div>`).join('');
         }
 
-        // Notify C# to load file content
         function openFile(name) {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({ action: 'load', fileName: name });
-            }
+            if (window.chrome?.webview) window.chrome.webview.postMessage({ action: 'load', fileName: name });
         }
     </script>
 </body>
