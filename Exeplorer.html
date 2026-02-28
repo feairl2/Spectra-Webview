@@ -53,40 +53,13 @@
             border-radius: var(--radius);
             color: white;
             padding: 0 15px;
-            height: 35px;
+            height: 32px;
             font-size: 14px;
             outline: none;
         }
 
         #search:focus { border-color: var(--accent); }
 
-        /* 重新整理按鈕 - 強化視覺版 */
-        .refresh-btn {
-            flex-shrink: 0;
-            width: 38px;
-            height: 38px;
-            background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: var(--radius);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            transition: all 0.2s;
-        }
-
-        .refresh-btn:hover { background: var(--hover-bg); border-color: #444; }
-        
-        /* 讓圖示變大的關鍵 */
-        .refresh-btn svg {
-            width: 17px; 
-            height: 17px;
-            stroke-width: 2.5; /* 線條加粗 */
-        }
-
-        /* 腳本列表：自動填滿剩下空間 */
         .file-list {
             flex: 1;
             overflow-y: auto;
@@ -103,7 +76,6 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
-            /* 確保文字不會超出範圍 */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
