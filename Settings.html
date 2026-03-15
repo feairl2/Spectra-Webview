@@ -2,93 +2,103 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
+        
         html, body {
             height: 100%;
+            width: 100%;
             margin: 0;
+            padding: 0;
             background-color: rgb(16, 16, 16);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            font-family: "Segoe UI", sans-serif;
+            font-family: "Segoe UI", "PingFang TC", sans-serif;
             user-select: none;
+            overflow: hidden;
         }
 
-        .nav-wrapper {
-            position: relative;
+        .nav-panel {
+            width: 100%;
+            height: 100%;
             display: flex;
-            gap: 20px;
-            padding-bottom: 2px;
+            flex-direction: column;
+            padding: 12px;
+            gap: 4px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            background-color: rgb(20, 20, 20);
         }
 
         .nav-btn {
-            background: none;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
             border: none;
-            color: #808080;
+            color: #909090;
             font-size: 14px;
             font-weight: 500;
-            padding: 4px 2px;
+            padding: 10px 16px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.2s ease;
             outline: none;
-            z-index: 2;
+            border-radius: 6.5px;
+            width: 100%;
         }
-
-        .nav-btn.active {
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
             color: #ffffff;
         }
 
-        .underline {
+        .nav-btn.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .nav-btn.active::before {
+            content: "";
             position: absolute;
-            bottom: 0;
-            height: 2px;
+            left: 0;
+            top: 20%;
+            height: 65%;
+            width: 3px;
             background-color: #ffffff;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
-            pointer-events: none;
-            z-index: 1;
-            transform-origin: left;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .material-icons {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="nav-wrapper">
-        <button id="btn1" class="nav-btn active" onclick="switchTab(this, 1)">System</button>
-        <button id="btn2" class="nav-btn" onclick="switchTab(this, 2)">Windows</button>
-        <button id="btn3" class="nav-btn" onclick="switchTab(this, 3)">Editor</button>
-        <div id="line" class="underline"></div>
+    <div class="nav-panel">
+        <button id="btn1" class="nav-btn active" onclick="switchTab(this, 1)">
+            <span class="material-icons">settings</span>
+            System
+        </button>
+        <button id="btn2" class="nav-btn" onclick="switchTab(this, 2)">
+            <span class="material-icons">grid_view</span>
+            Windows
+        </button>
+        <button id="btn3" class="nav-btn" onclick="switchTab(this, 3)">
+            <span class="material-icons">edit</span>
+            Editor
+        </button>
     </div>
 
     <script>
-        const line = document.getElementById('line');
-
-        function updateLine(element) {
-            if (!element) return;
-            line.style.width = element.offsetWidth + 'px';
-            line.style.transform = `translateX(${element.offsetLeft}px)`;
-        }
-
         function switchTab(btn, index) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            updateLine(btn);
 
             if (window.chrome && window.chrome.webview) {
-        window.chrome.webview.postMessage(index.toString());
-    }
-
-            console.log("Tab " + index + " Active");
+                window.chrome.webview.postMessage(index.toString());
+            }
+            console.log("Selected index: " + index);
         }
-
-        window.onload = () => {
-            setTimeout(() => {
-                updateLine(document.querySelector('.nav-btn.active'));
-            }, 50);
-        };
-
-        window.onresize = () => updateLine(document.querySelector('.nav-btn.active'));
     </script>
 </body>
 </html>
