@@ -76,7 +76,7 @@
             updateLine(btn);
 
             if (window.chrome && window.chrome.webview) {
-        window.chrome.webview.postMessage(index); 
+        window.chrome.webview.postMessage(index.toString());
     }
 
             console.log("Tab " + index + " Active");
