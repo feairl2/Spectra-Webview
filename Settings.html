@@ -75,6 +75,10 @@
             btn.classList.add('active');
             updateLine(btn);
 
+            if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage(index); 
+    }
+
             console.log("Tab " + index + " Active");
         }
 
