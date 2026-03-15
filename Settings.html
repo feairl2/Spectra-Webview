@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: rgb(16, 16, 16);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: "Segoe UI", sans-serif;
+            user-select: none;
+        }
+
+        .nav-wrapper {
+            position: relative;
+            display: flex;
+            gap: 20px;
+            padding-bottom: 2px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #808080;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 2px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            outline: none;
+            z-index: 2;
+        }
+
+        .nav-btn.active {
+            color: #ffffff;
+        }
+
+        .underline {
+            position: absolute;
+            bottom: 0;
+            height: 2px;
+            background-color: #ffffff;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+            transform-origin: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-wrapper">
+        <button id="btn1" class="nav-btn active" onclick="switchTab(this, 1)">System</button>
+        <button id="btn2" class="nav-btn" onclick="switchTab(this, 2)">Windows</button>
+        <button id="btn3" class="nav-btn" onclick="switchTab(this, 3)">Editor</button>
+        <div id="line" class="underline"></div>
+    </div>
+
+    <script>
+        const line = document.getElementById('line');
+
+        function updateLine(element) {
+            if (!element) return;
+            line.style.width = element.offsetWidth + 'px';
+            line.style.transform = `translateX(${element.offsetLeft}px)`;
+        }
+
+        function switchTab(btn, index) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateLine(btn);
+
+            console.log("Tab " + index + " Active");
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                updateLine(document.querySelector('.nav-btn.active'));
+            }, 50);
+        };
+
+        window.onresize = () => updateLine(document.querySelector('.nav-btn.active'));
+    </script>
+</body>
+</html>
