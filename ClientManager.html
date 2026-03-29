@@ -21,28 +21,54 @@ body{
     background:var(--bg);
     font-family:'Inter',sans-serif;
     color:var(--text);
+
+    opacity:0;
+    transform:translateY(-40px) scale(0.96);
+}
+
+body.enter{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    transition:
+        transform 0.8s cubic-bezier(0.08,0.9,0.2,1),
+        opacity 0.4s ease;
 }
 
 .top{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:21px; /* 原本16 → +5 */
+    padding:21px;
     border:1px solid var(--border);
     border-radius:10px;
-    background:linear-gradient(180deg,#1a1a1a,#131313); /* 更灰 */
+    background:linear-gradient(180deg,#1a1a1a,#131313);
     margin-bottom:20px;
+
+    opacity:0;
+    transform:translateY(-10px);
+}
+
+.top.show{
+    opacity:1;
+    transform:translateY(0);
+    transition:all 0.5s ease;
 }
 
 .actions{ display:flex; gap:10px; }
 
 .btn{
-    background:#0f0f0f;
+    background: #090909;
     border:1px solid var(--border);
     padding:8px 14px;
     border-radius:6px;
     font-size:13px;
     cursor:pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover{
+background: #131313;
+border-color: #292929;
 }
 
 .count{ font-size:13px; color:#aaa; }
@@ -50,10 +76,18 @@ body{
 .card{
     border:1px solid var(--border);
     border-radius:8px;
-    padding:5px; /* 原本10 → 減5 */
+    padding:5px;
     margin-bottom:14px;
     background:var(--card);
-    transition:0.2s;
+    transition:border-color 0.2s ease, opacity 0.5s ease, transform 0.5s ease;
+
+    opacity:0;
+    transform:translateY(15px) scale(0.95);
+}
+
+.card.show{
+    opacity:1;
+    transform:translateY(0) scale(1);
 }
 
 .card:hover{ border-color:#fff; }
@@ -67,6 +101,7 @@ body{
     border-radius:6px;
     padding:11px 16px; 
 }
+
 .left{
     display:flex;
     align-items:center;
@@ -124,17 +159,6 @@ body{
 .check{
     transform:scale(1.2);
 }
-
-/* animation */
-.fade-in{
-    opacity:0;
-    transform:translateY(10px);
-    animation:fade 0.25s ease forwards;
-}
-
-@keyframes fade{
-    to{opacity:1; transform:translateY(0);}
-}
 </style>
 </head>
 
@@ -167,7 +191,7 @@ function render(list, preSelected = []) {
         if (!el) {
             el = document.createElement("div");
             el.id = "client-" + c.pid;
-            el.className = "card fade-in";
+            el.className = "card";
 
             el.innerHTML = `
                 <div class="inner">
@@ -195,6 +219,7 @@ function render(list, preSelected = []) {
     });
 
     updateCount();
+    playCardIntro();
 }
 
 function updateCard(el, c, isSelected) {
@@ -274,11 +299,54 @@ function send() {
     }
 }
 
+function playCardIntro() {
+    const cards = document.querySelectorAll(".card");
+
+    cards.forEach((card, i) => {
+        card.classList.remove("show");
+        void card.offsetWidth;
+
+        setTimeout(() => {
+            card.classList.add("show");
+        }, i * 50);
+    });
+}
+
+window.AnimationAPI = {
+    playGlobalIntro() {
+        const body = document.body;
+        const top = document.querySelector(".top");
+
+        body.classList.remove("enter");
+        void body.offsetWidth;
+        body.classList.add("enter");
+
+        top.classList.remove("show");
+        void top.offsetWidth;
+
+        setTimeout(() => {
+            top.classList.add("show");
+        }, 100);
+
+        setTimeout(() => {
+            playCardIntro();
+        }, 200);
+    }
+};
+
 window.ClientAPI = {
     setClients: function (list, selectedList) {
         render(list, selectedList || []);
     }
 };
+
+window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        if (!document.body.classList.contains("enter")) {
+            AnimationAPI.playGlobalIntro();
+        }
+    }, 50);
+});
 </script>
 
 </body>
