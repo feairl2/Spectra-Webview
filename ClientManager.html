@@ -198,7 +198,21 @@ function render(list, preSelected) {
         el.className = "card";
         el.id = "client-"+c.pid;
 
-        el.innerHTML = `...`;
+        el.innerHTML = `
+    <div class="inner">
+        <div class="left">
+            <div class="info">
+                <span class="user-label">Username:</span>
+                <span class="username"></span>
+                <span class="badge">N/A</span>
+                <span class="game"></span>
+            </div>
+        </div>
+
+        <div class="pid"></div>
+        <div class="status"></div>
+    </div>
+`;
 
         container.appendChild(el);
 
@@ -207,6 +221,7 @@ function render(list, preSelected) {
     });
 
     updateCount();
+    playCardIntro();
 }
 
 function updateCard(el, c, isSelected) {
