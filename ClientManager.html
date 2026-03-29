@@ -167,21 +167,18 @@ border-color: #292929;
 <script>
 let clients = [];
 let selected = new Set();
+let firstRender = true;
 
 function render(list, preSelected) {
 
-    // 排序
     list.sort((a,b)=>a.pid-b.pid);
 
-    // 更新 clients
     clients = list;
 
-    // 只在有傳才覆蓋
     if (preSelected && preSelected.length > 0) {
         selected = new Set(preSelected);
     }
 
-    // 清掉不存在的
     selected = new Set(
         Array.from(selected).filter(pid =>
             list.some(c => c.pid === pid)
@@ -221,7 +218,11 @@ function render(list, preSelected) {
     });
 
     updateCount();
+
+if (firstRender) {
     playCardIntro();
+    firstRender = false;
+}
 }
 
 function updateCard(el, c, isSelected) {
