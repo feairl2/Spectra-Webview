@@ -211,6 +211,7 @@ function render(list, preSelected) {
     `;
 
     container.appendChild(el);
+    bindEvents(el, c.pid);
 });
 
     updateCount();
@@ -254,7 +255,7 @@ function toggle(pid) {
 
 function updateAll() {
     clients.forEach(c => {
-        const el = document.getElementById("client-" + c.pid);
+        const el = document.querySelector(`[data-pid="${c.pid}"]`);
         if (el) updateCard(el, c, selected.has(c.pid));
     });
 
