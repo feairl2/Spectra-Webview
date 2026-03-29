@@ -9,7 +9,6 @@
 :root{
     --bg:#090909;
     --card:#151515;
-    --inner: White;
     --border:#2a2a2a;
     --text:#ffffff;
     --sub:#9aa0a6;
@@ -28,10 +27,10 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:16px;
+    padding:21px; /* 原本16 → +5 */
     border:1px solid var(--border);
     border-radius:10px;
-    background:linear-gradient(180deg,#141414,#101010);
+    background:linear-gradient(180deg,#1a1a1a,#131313); /* 更灰 */
     margin-bottom:20px;
 }
 
@@ -51,7 +50,7 @@ body{
 .card{
     border:1px solid var(--border);
     border-radius:8px;
-    padding:8px;
+    padding:5px; /* 原本10 → 減5 */
     margin-bottom:14px;
     background:var(--card);
     transition:0.2s;
@@ -64,11 +63,10 @@ body{
     display:flex;
     align-items:center;
     justify-content:space-between;
-    background:var(--inner);
+    background:#171717;
     border-radius:6px;
-    padding:14px 16px;
+    padding:11px 16px; 
 }
-
 .left{
     display:flex;
     align-items:center;
