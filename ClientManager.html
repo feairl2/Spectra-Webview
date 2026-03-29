@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client Manager</title>
+
+<style>
+:root {
+    --bg: #0b0b0b;
+    --card: #141414;
+    --card-inner: #1b1b1b;
+    --border: #2a2a2a;
+    --accent: #ffffff;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: white;
+}
+
+/* 🔥 Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* 全選 */
+.select-all {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+/* 🔥 Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+/* 🔥 卡片 */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card:hover {
+    border-color: #444;
+}
+
+/* 被選中 */
+.card.selected {
+    border-color: var(--accent);
+}
+
+/* 內部 */
+.card-inner {
+    background: var(--card-inner);
+    border-radius: 6px;
+    padding: 12px;
+}
+
+/* 標題 */
+.title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* PID */
+.pid {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* checkbox */
+.checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.card-wrapper {
+    position: relative;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div style="font-weight:600;">Client Manager</div>
+
+    <div class="select-all" onclick="toggleAll()">
+        <input type="checkbox" id="selectAll">
+        <span>Select All</span>
+    </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+let clients = [];
+let selected = new Set();
+
+/* 🔥 渲染 */
+function renderClients(list) {
+    clients = list;
+    selected.clear();
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    list.forEach((c, i) => {
+        const div = document.createElement("div");
+        div.className = "card-wrapper";
+
+        div.innerHTML = `
+            <div class="card" onclick="toggle(${c.pid}, this)">
+                <input class="checkbox" type="checkbox" id="chk-${c.pid}">
+                <div class="card-inner">
+                    <div class="title">Client ${c.index}</div>
+                    <div class="pid">PID: ${c.pid}</div>
+                </div>
+            </div>
+        `;
+
+        grid.appendChild(div);
+    });
+}
+
+/* 🔥 單個選擇 */
+function toggle(pid, el) {
+    const checkbox = document.getElementById("chk-" + pid);
+
+    if (selected.has(pid)) {
+        selected.delete(pid);
+        el.classList.remove("selected");
+        checkbox.checked = false;
+    } else {
+        selected.add(pid);
+        el.classList.add("selected");
+        checkbox.checked = true;
+    }
+
+    sendSelection();
+}
+
+/* 🔥 全選 */
+function toggleAll() {
+    const all = document.getElementById("selectAll").checked;
+
+    selected.clear();
+
+    document.querySelectorAll(".card").forEach(card => {
+        const pid = parseInt(card.querySelector(".pid").innerText.replace("PID: ", ""));
+        const chk = document.getElementById("chk-" + pid);
+
+        if (all) {
+            selected.add(pid);
+            card.classList.add("selected");
+            chk.checked = true;
+        } else {
+            card.classList.remove("selected");
+            chk.checked = false;
+        }
+    });
+
+    sendSelection();
+}
+
+/* 🔥 傳給 WinForm */
+function sendSelection() {
+    if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage(JSON.stringify({
+            type: "selection",
+            pids: Array.from(selected)
+        }));
+    }
+}
+
+/* 🔥 提供給 WinForm 呼叫 */
+window.ClientAPI = {
+    setClients: function(list) {
+        renderClients(list);
+    }
+};
+</script>
+
+</body>
+</html>
