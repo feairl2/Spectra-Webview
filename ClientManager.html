@@ -55,20 +55,24 @@ body{
     border-color:#444;
 }
 
-/* count */
 .count{
     color:#aaa;
     font-size:13px;
 }
 
-/* 🔥 Client Card */
+/* 🔥 Card */
 .card{
     border:1px solid var(--border);
     border-radius:8px;
     padding:10px;
     margin-bottom:14px;
     background:var(--card);
-    transition:0.2s;
+    transition:0.2s ease, transform 0.15s ease;
+}
+
+.card:hover{
+    transform:translateY(-2px);
+    border-color:#444;
 }
 
 .card.selected{
@@ -84,7 +88,6 @@ body{
     padding:12px;
 }
 
-/* left */
 .left{
     display:flex;
     align-items:center;
@@ -97,7 +100,6 @@ body{
     border-radius:50%;
 }
 
-/* text */
 .username{
     font-weight:600;
     font-size:14px;
@@ -113,19 +115,29 @@ body{
     font-weight:600;
 }
 
-/* attached */
 .status{
-    background:var(--green);
     padding:6px 12px;
     border-radius:6px;
     font-size:12px;
     font-weight:600;
 }
 
-/* checkbox */
 .check{
-    margin-right:10px;
     transform:scale(1.2);
+}
+
+/* 🔥 animation */
+.fade-in{
+    opacity:0;
+    transform:translateY(10px);
+    animation:fadeSlide 0.25s ease forwards;
+}
+
+@keyframes fadeSlide{
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }
 </style>
 </head>
@@ -144,97 +156,142 @@ body{
 <div id="list"></div>
 
 <script>
-let clients=[];
-let selected=new Set();
+let clients = [];
+let selected = new Set();
 
-/* 🔥 render */
-function render(list, preSelected=[]){
-    clients=list;
-    selected=new Set(preSelected);
+/* 🔥 render（不卡版） */
+function render(list, preSelected = []) {
+    clients = list;
+    selected = new Set(preSelected);
 
-    const container=document.getElementById("list");
-    container.innerHTML="";
+    const container = document.getElementById("list");
 
-    list.forEach(c=>{
-        const isSelected=selected.has(c.pid);
+    list.forEach(c => {
+        let el = document.getElementById("client-" + c.pid);
+        const isSelected = selected.has(c.pid);
 
-        const el=document.createElement("div");
-        el.className="card "+(isSelected?"selected":"");
+        if (!el) {
+            el = document.createElement("div");
+            el.id = "client-" + c.pid;
+            el.className = "card fade-in";
 
-        el.innerHTML=`
-            <div class="inner">
-
-                <div class="left">
-                    <input type="checkbox" class="check" ${isSelected?"checked":""} onclick="event.stopPropagation();toggle(${c.pid},this)">
-
-                    <img class="avatar" src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png">
-
-                    <div>
-                        <div class="username">feairl123</div>
-                        <div class="label">Unknown Game</div>
+            el.innerHTML = `
+                <div class="inner">
+                    <div class="left">
+                        <input type="checkbox" class="check">
+                        <img class="avatar">
+                        <div>
+                            <div class="username"></div>
+                            <div class="label"></div>
+                        </div>
                     </div>
+
+                    <div class="pid"></div>
+                    <div class="status"></div>
                 </div>
+            `;
 
-                <div class="pid"># PID: ${c.pid}</div>
+            container.appendChild(el);
 
-                <div class="status">ATTACHED</div>
+            setTimeout(() => el.classList.remove("fade-in"), 200);
 
-            </div>
-        `;
+            bindEvents(el, c.pid);
+        }
 
-        el.onclick=()=>toggle(c.pid,el);
-
-        container.appendChild(el);
+        updateCard(el, c, isSelected);
     });
 
     updateCount();
 }
 
-/* toggle */
-function toggle(pid,el){
-    if(selected.has(pid)){
-        selected.delete(pid);
-    }else{
-        selected.add(pid);
+/* 🔥 更新卡片 */
+function updateCard(el, c, isSelected) {
+    el.classList.toggle("selected", isSelected);
+
+    el.querySelector(".check").checked = isSelected;
+    el.querySelector(".pid").innerText = "# PID: " + c.pid;
+
+    el.querySelector(".username").innerText = c.username || ("Client " + c.index);
+    el.querySelector(".label").innerText = c.game || "Unknown Game";
+
+    const status = el.querySelector(".status");
+
+    if (c.attached) {
+        status.innerText = "ATTACHED";
+        status.style.background = "#1f9d5a";
+    } else {
+        status.innerText = "NOT ATTACHED";
+        status.style.background = "#444";
     }
 
-    render(clients,Array.from(selected));
+    el.querySelector(".avatar").src =
+        c.avatar || "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png";
+}
+
+/* 🔥 綁事件 */
+function bindEvents(el, pid) {
+    const checkbox = el.querySelector(".check");
+
+    checkbox.addEventListener("click", e => {
+        e.stopPropagation();
+        toggle(pid);
+    });
+
+    el.addEventListener("click", () => toggle(pid));
+}
+
+/* toggle */
+function toggle(pid) {
+    if (selected.has(pid)) selected.delete(pid);
+    else selected.add(pid);
+
+    updateAll();
     send();
+}
+
+/* 更新全部 */
+function updateAll() {
+    clients.forEach(c => {
+        const el = document.getElementById("client-" + c.pid);
+        if (el) updateCard(el, c, selected.has(c.pid));
+    });
+
+    updateCount();
 }
 
 /* select all */
-function selectAll(){
-    clients.forEach(c=>selected.add(c.pid));
-    render(clients,Array.from(selected));
+function selectAll() {
+    clients.forEach(c => selected.add(c.pid));
+    updateAll();
     send();
 }
 
-function deselectAll(){
+function deselectAll() {
     selected.clear();
-    render(clients,[]);
+    updateAll();
     send();
 }
 
 /* count */
-function updateCount(){
-    document.getElementById("count").innerText=
-        selected.size+" of "+clients.length+" selected";
+function updateCount() {
+    document.getElementById("count").innerText =
+        selected.size + " of " + clients.length + " selected";
 }
 
-/* send to winform */
-function send(){
-    if(window.chrome && window.chrome.webview){
+/* 傳給 WinForm */
+function send() {
+    if (window.chrome && window.chrome.webview) {
         window.chrome.webview.postMessage(JSON.stringify({
-            type:"selection",
-            pids:Array.from(selected)
+            type: "selection",
+            pids: Array.from(selected)
         }));
     }
 }
 
 /* API */
-window.ClientAPI={
-    setClients:function(list,selectedList){
-        render(list,selectedList||[]);
+window.ClientAPI = {
+    setClients: function (list, selectedList) {
+        render(list, selectedList || []);
     }
 };
 </script>
