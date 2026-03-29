@@ -211,6 +211,7 @@ function render(list, preSelected) {
     `;
 
     container.appendChild(el);
+    updateCard(el, c, selected.has(c.pid));
     bindEvents(el, c.pid);
 });
 
@@ -225,10 +226,8 @@ if(!window._played){
 function updateCard(el, c, isSelected) {
     el.classList.toggle("selected", isSelected);
 
-    el.querySelector(".pid").innerText = "# PID: " + c.pid;
-
+    el.querySelector(".pid").innerText = "# " + c.pid;
     el.querySelector(".username").innerText = c.username || ("Client " + c.index);
-    el.querySelector(".game").innerText = c.game || "Unknown Game";
 
     const status = el.querySelector(".status");
 
