@@ -108,12 +108,6 @@ border-color: #292929;
     gap:14px;
 }
 
-.avatar{
-    width:32px;
-    height:32px;
-    border-radius:50%;
-}
-
 .info{
     display:flex;
     align-items:center;
@@ -155,10 +149,6 @@ border-color: #292929;
     font-size:12px;
     font-weight:600;
 }
-
-.check{
-    transform:scale(1.2);
-}
 </style>
 </head>
 
@@ -196,8 +186,6 @@ function render(list, preSelected = []) {
             el.innerHTML = `
                 <div class="inner">
                     <div class="left">
-                        <input type="checkbox" class="check">
-                        <img class="avatar">
                         <div class="info">
                             <span class="user-label">Username:</span>
                             <span class="username"></span>
@@ -225,7 +213,6 @@ function render(list, preSelected = []) {
 function updateCard(el, c, isSelected) {
     el.classList.toggle("selected", isSelected);
 
-    el.querySelector(".check").checked = isSelected;
     el.querySelector(".pid").innerText = "# PID: " + c.pid;
 
     el.querySelector(".username").innerText = c.username || ("Client " + c.index);
@@ -241,18 +228,7 @@ function updateCard(el, c, isSelected) {
         status.style.background = "#444";
     }
 
-    el.querySelector(".avatar").src =
-        c.avatar || "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png";
-}
-
 function bindEvents(el, pid) {
-    const checkbox = el.querySelector(".check");
-
-    checkbox.addEventListener("click", e => {
-        e.stopPropagation();
-        toggle(pid);
-    });
-
     el.addEventListener("click", () => toggle(pid));
 }
 
