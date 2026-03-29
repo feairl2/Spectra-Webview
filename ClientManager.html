@@ -169,41 +169,36 @@ let clients = [];
 let selected = new Set();
 
 function render(list, preSelected = []) {
+
+    // 🔥 排序
+    list.sort((a, b) => a.pid - b.pid);
+
+    // 🔥 修 index
+    list.forEach((c, i) => c.index = i + 1);
+
+    // 🔥 清掉不存在的選擇
+    selected = new Set(
+        Array.from(selected).filter(pid =>
+            list.some(c => c.pid === pid)
+        )
+    );
+
     clients = list;
-    selected = new Set(preSelected);
 
     const container = document.getElementById("list");
+    container.innerHTML = ""; // 🔥 超重要
 
     list.forEach(c => {
-        let el = document.getElementById("client-" + c.pid);
-        const isSelected = selected.has(c.pid);
+        const el = document.createElement("div");
+        el.id = "client-" + c.pid;
+        el.className = "card";
 
-        if (!el) {
-            el = document.createElement("div");
-            el.id = "client-" + c.pid;
-            el.className = "card";
+        el.innerHTML = `...`;
 
-            el.innerHTML = `
-                <div class="inner">
-                    <div class="left">
-                        <div class="info">
-                            <span class="user-label">Username:</span>
-                            <span class="username"></span>
-                            <span class="badge">N/A</span>
-                            <span class="game"></span>
-                        </div>
-                    </div>
+        container.appendChild(el);
+        bindEvents(el, c.pid);
 
-                    <div class="pid"></div>
-                    <div class="status"></div>
-                </div>
-            `;
-
-            container.appendChild(el);
-            bindEvents(el, c.pid);
-        }
-
-        updateCard(el, c, isSelected);
+        updateCard(el, c, selected.has(c.pid));
     });
 
     updateCount();
