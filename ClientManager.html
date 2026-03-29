@@ -189,39 +189,35 @@ function render(list, preSelected) {
     container.innerHTML = "";
 
     list.forEach((c,i)=>{
-        c.index = i+1;
 
-        const el = document.createElement("div");
-        el.className = "card";
-        el.id = "client-"+c.pid;
+    const el = document.createElement("div");
 
-        el.innerHTML = `
-    <div class="inner">
-        <div class="left">
-            <div class="info">
-                <span class="user-label">Username:</span>
-                <span class="username"></span>
-                <span class="badge">N/A</span>
-                <span class="game"></span>
+    el.className = "card";
+
+    el.setAttribute("data-pid", c.pid); // 🔥 放這裡（超關鍵）
+
+    el.innerHTML = `
+        <div class="inner">
+            <div class="left">
+                <div class="username">Client ${i+1}</div>
+            </div>
+
+            <div class="pid"># ${c.pid}</div>
+
+            <div class="status">
+                ${c.attached ? "ATTACHED" : "NOT ATTACHED"}
             </div>
         </div>
+    `;
 
-        <div class="pid"></div>
-        <div class="status"></div>
-    </div>
-`;
-
-        container.appendChild(el);
-
-        bindEvents(el,c.pid);
-        updateCard(el,c,selected.has(c.pid));
-    });
+    container.appendChild(el);
+});
 
     updateCount();
 
-if (firstRender) {
+if(!window._played){
     playCardIntro();
-    firstRender = false;
+    window._played=true;
 }
 }
 
@@ -282,6 +278,23 @@ function updateCount() {
         selected.size + " of " + clients.length + " selected";
 }
 
+function updateStatus(list){
+    list.forEach(c=>{
+        const card=document.querySelector(`[data-pid="${c.pid}"]`);
+        if(!card) return;
+
+        const status=card.querySelector(".status");
+
+        if(c.attached){
+            status.innerText="ATTACHED";
+            status.style.background="#1f9d5a";
+        }else{
+            status.innerText="NOT ATTACHED";
+            status.style.background="#444";
+        }
+    });
+}
+
 function send() {
     if (window.chrome && window.chrome.webview) {
         window.chrome.webview.postMessage(JSON.stringify({
@@ -326,9 +339,13 @@ window.AnimationAPI = {
     }
 };
 
-window.ClientAPI = {
-    setClients: function (list, selectedList) {
-        render(list, selectedList || []);
+window.ClientAPI={
+    setClients:function(list,selectedList){
+        render(list,selectedList||[]);
+    },
+
+    updateStatus:function(list){
+        updateStatus(list);
     }
 };
 
