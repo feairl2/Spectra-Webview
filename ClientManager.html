@@ -2,197 +2,239 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Client Manager</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-:root {
-    --bg: #0b0b0b;
-    --card: #141414;
-    --card-inner: #1b1b1b;
-    --border: #2a2a2a;
-    --accent: #ffffff;
+:root{
+    --bg:#0b0b0b;
+    --card:#151515;
+    --inner:#1b1b1b;
+    --border:#2a2a2a;
+    --text:#ffffff;
+    --sub:#9aa0a6;
+    --green:#1f9d5a;
 }
 
-body {
-    margin: 0;
-    padding: 20px;
-    background: var(--bg);
-    font-family: 'Inter', sans-serif;
-    color: white;
+body{
+    margin:0;
+    padding:24px;
+    background:var(--bg);
+    font-family:'Inter',sans-serif;
+    color:var(--text);
 }
 
-/* 🔥 Header */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+/* 🔥 Top Bar */
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:linear-gradient(180deg,#141414,#101010);
+    margin-bottom:20px;
 }
 
-/* 全選 */
-.select-all {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+.actions{
+    display:flex;
+    gap:10px;
 }
 
-/* 🔥 Grid */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 14px;
+.btn{
+    background:#0f0f0f;
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:6px;
+    font-size:13px;
+    cursor:pointer;
+    color:white;
 }
 
-/* 🔥 卡片 */
-.card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px;
-    cursor: pointer;
-    transition: 0.2s;
+.btn:hover{
+    border-color:#444;
 }
 
-.card:hover {
-    border-color: #444;
+/* count */
+.count{
+    color:#aaa;
+    font-size:13px;
 }
 
-/* 被選中 */
-.card.selected {
-    border-color: var(--accent);
+/* 🔥 Client Card */
+.card{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px;
+    margin-bottom:14px;
+    background:var(--card);
+    transition:0.2s;
 }
 
-/* 內部 */
-.card-inner {
-    background: var(--card-inner);
-    border-radius: 6px;
-    padding: 12px;
+.card.selected{
+    border-color:#fff;
 }
 
-/* 標題 */
-.title {
-    font-size: 14px;
-    font-weight: 600;
+.inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--inner);
+    border-radius:6px;
+    padding:12px;
 }
 
-/* PID */
-.pid {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
+/* left */
+.left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.avatar{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+}
+
+/* text */
+.username{
+    font-weight:600;
+    font-size:14px;
+}
+
+.label{
+    font-size:13px;
+    color:var(--sub);
+}
+
+.pid{
+    font-size:14px;
+    font-weight:600;
+}
+
+/* attached */
+.status{
+    background:var(--green);
+    padding:6px 12px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
 }
 
 /* checkbox */
-.checkbox {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.card-wrapper {
-    position: relative;
+.check{
+    margin-right:10px;
+    transform:scale(1.2);
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <div style="font-weight:600;">Client Manager</div>
-
-    <div class="select-all" onclick="toggleAll()">
-        <input type="checkbox" id="selectAll">
-        <span>Select All</span>
+<div class="top">
+    <div class="actions">
+        <div class="btn" onclick="selectAll()">Select All</div>
+        <div class="btn" onclick="deselectAll()">Deselect All</div>
     </div>
+
+    <div class="count" id="count">0 selected</div>
 </div>
 
-<div class="grid" id="grid"></div>
+<div id="list"></div>
 
 <script>
-let clients = [];
-let selected = new Set();
+let clients=[];
+let selected=new Set();
 
-/* 🔥 渲染 */
-function renderClients(list) {
-    clients = list;
-    selected.clear();
+/* 🔥 render */
+function render(list, preSelected=[]){
+    clients=list;
+    selected=new Set(preSelected);
 
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
+    const container=document.getElementById("list");
+    container.innerHTML="";
 
-    list.forEach((c, i) => {
-        const div = document.createElement("div");
-        div.className = "card-wrapper";
+    list.forEach(c=>{
+        const isSelected=selected.has(c.pid);
 
-        div.innerHTML = `
-            <div class="card" onclick="toggle(${c.pid}, this)">
-                <input class="checkbox" type="checkbox" id="chk-${c.pid}">
-                <div class="card-inner">
-                    <div class="title">Client ${c.index}</div>
-                    <div class="pid">PID: ${c.pid}</div>
+        const el=document.createElement("div");
+        el.className="card "+(isSelected?"selected":"");
+
+        el.innerHTML=`
+            <div class="inner">
+
+                <div class="left">
+                    <input type="checkbox" class="check" ${isSelected?"checked":""} onclick="event.stopPropagation();toggle(${c.pid},this)">
+
+                    <img class="avatar" src="https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png">
+
+                    <div>
+                        <div class="username">feairl123</div>
+                        <div class="label">Unknown Game</div>
+                    </div>
                 </div>
+
+                <div class="pid"># PID: ${c.pid}</div>
+
+                <div class="status">ATTACHED</div>
+
             </div>
         `;
 
-        grid.appendChild(div);
+        el.onclick=()=>toggle(c.pid,el);
+
+        container.appendChild(el);
     });
+
+    updateCount();
 }
 
-/* 🔥 單個選擇 */
-function toggle(pid, el) {
-    const checkbox = document.getElementById("chk-" + pid);
-
-    if (selected.has(pid)) {
+/* toggle */
+function toggle(pid,el){
+    if(selected.has(pid)){
         selected.delete(pid);
-        el.classList.remove("selected");
-        checkbox.checked = false;
-    } else {
+    }else{
         selected.add(pid);
-        el.classList.add("selected");
-        checkbox.checked = true;
     }
 
-    sendSelection();
+    render(clients,Array.from(selected));
+    send();
 }
 
-/* 🔥 全選 */
-function toggleAll() {
-    const all = document.getElementById("selectAll").checked;
+/* select all */
+function selectAll(){
+    clients.forEach(c=>selected.add(c.pid));
+    render(clients,Array.from(selected));
+    send();
+}
 
+function deselectAll(){
     selected.clear();
-
-    document.querySelectorAll(".card").forEach(card => {
-        const pid = parseInt(card.querySelector(".pid").innerText.replace("PID: ", ""));
-        const chk = document.getElementById("chk-" + pid);
-
-        if (all) {
-            selected.add(pid);
-            card.classList.add("selected");
-            chk.checked = true;
-        } else {
-            card.classList.remove("selected");
-            chk.checked = false;
-        }
-    });
-
-    sendSelection();
+    render(clients,[]);
+    send();
 }
 
-/* 🔥 傳給 WinForm */
-function sendSelection() {
-    if (window.chrome && window.chrome.webview) {
+/* count */
+function updateCount(){
+    document.getElementById("count").innerText=
+        selected.size+" of "+clients.length+" selected";
+}
+
+/* send to winform */
+function send(){
+    if(window.chrome && window.chrome.webview){
         window.chrome.webview.postMessage(JSON.stringify({
-            type: "selection",
-            pids: Array.from(selected)
+            type:"selection",
+            pids:Array.from(selected)
         }));
     }
 }
 
-/* 🔥 提供給 WinForm 呼叫 */
-window.ClientAPI = {
-    setClients: function(list) {
-        renderClients(list);
+/* API */
+window.ClientAPI={
+    setClients:function(list,selectedList){
+        render(list,selectedList||[]);
     }
 };
 </script>
