@@ -168,41 +168,45 @@ border-color: #292929;
 let clients = [];
 let selected = new Set();
 
-function render(list, preSelected = []) {
+function render(list, preSelected) {
 
-    // 🔥 排序
-    list.sort((a, b) => a.pid - b.pid);
+    // 排序
+    list.sort((a,b)=>a.pid-b.pid);
 
-    // 🔥 修 index
-    list.forEach((c, i) => c.index = i + 1);
+    // 更新 clients
+    clients = list;
 
-    // 🔥 清掉不存在的選擇
+    // 只在有傳才覆蓋
+    if (preSelected && preSelected.length > 0) {
+        selected = new Set(preSelected);
+    }
+
+    // 清掉不存在的
     selected = new Set(
         Array.from(selected).filter(pid =>
             list.some(c => c.pid === pid)
         )
     );
 
-    clients = list;
-
     const container = document.getElementById("list");
-    container.innerHTML = ""; // 🔥 超重要
+    container.innerHTML = "";
 
-    list.forEach(c => {
+    list.forEach((c,i)=>{
+        c.index = i+1;
+
         const el = document.createElement("div");
-        el.id = "client-" + c.pid;
         el.className = "card";
+        el.id = "client-"+c.pid;
 
         el.innerHTML = `...`;
 
         container.appendChild(el);
-        bindEvents(el, c.pid);
 
-        updateCard(el, c, selected.has(c.pid));
+        bindEvents(el,c.pid);
+        updateCard(el,c,selected.has(c.pid));
     });
 
     updateCount();
-    playCardIntro();
 }
 
 function updateCard(el, c, isSelected) {
