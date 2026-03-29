@@ -24,7 +24,7 @@ body{
     color:var(--text);
 }
 
-/* 🔥 Top Bar */
+/* Top */
 .top{
     display:flex;
     justify-content:space-between;
@@ -36,10 +36,7 @@ body{
     margin-bottom:20px;
 }
 
-.actions{
-    display:flex;
-    gap:10px;
-}
+.actions{ display:flex; gap:10px; }
 
 .btn{
     background:#0f0f0f;
@@ -48,34 +45,22 @@ body{
     border-radius:6px;
     font-size:13px;
     cursor:pointer;
-    color:white;
 }
 
-.btn:hover{
-    border-color:#444;
-}
+.count{ font-size:13px; color:#aaa; }
 
-.count{
-    color:#aaa;
-    font-size:13px;
-}
-
+/* Card */
 .card{
     border:1px solid var(--border);
     border-radius:8px;
     padding:10px;
     margin-bottom:14px;
     background:var(--card);
-    transition:0.2s ease, transform 0.15s ease;
+    transition:0.2s;
 }
 
-.card:hover{
-    border-color:#ffffff;
-}
-
-.card.selected{
-    border-color:#ffffff;
-}
+.card:hover{ border-color:#fff; }
+.card.selected{ border-color:#fff; }
 
 .inner{
     display:flex;
@@ -83,7 +68,7 @@ body{
     justify-content:space-between;
     background:var(--inner);
     border-radius:6px;
-    padding:12px;
+    padding:14px 16px;
 }
 
 .left{
@@ -98,19 +83,39 @@ body{
     border-radius:50%;
 }
 
+.info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-label{
+    color:#9aa0a6;
+    font-size:13px;
+}
+
 .username{
     font-weight:600;
     font-size:14px;
 }
 
-.label{
+.badge{
+    font-size:11px;
+    padding:2px 6px;
+    border-radius:5px;
+    border:1px solid #333;
+    color:#aaa;
+}
+
+.game{
+    color:#9aa0a6;
     font-size:13px;
-    color:var(--sub);
 }
 
 .pid{
     font-size:14px;
     font-weight:600;
+    letter-spacing:1px;
 }
 
 .status{
@@ -124,18 +129,15 @@ body{
     transform:scale(1.2);
 }
 
-/* 🔥 animation */
+/* animation */
 .fade-in{
     opacity:0;
     transform:translateY(10px);
-    animation:fadeSlide 0.25s ease forwards;
+    animation:fade 0.25s ease forwards;
 }
 
-@keyframes fadeSlide{
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+@keyframes fade{
+    to{opacity:1; transform:translateY(0);}
 }
 </style>
 </head>
@@ -147,7 +149,6 @@ body{
         <div class="btn" onclick="selectAll()">Select All</div>
         <div class="btn" onclick="deselectAll()">Deselect All</div>
     </div>
-
     <div class="count" id="count">0 selected</div>
 </div>
 
@@ -157,7 +158,6 @@ body{
 let clients = [];
 let selected = new Set();
 
-/* 🔥 render（不卡版） */
 function render(list, preSelected = []) {
     clients = list;
     selected = new Set(preSelected);
@@ -178,9 +178,11 @@ function render(list, preSelected = []) {
                     <div class="left">
                         <input type="checkbox" class="check">
                         <img class="avatar">
-                        <div>
-                            <div class="username"></div>
-                            <div class="label"></div>
+                        <div class="info">
+                            <span class="user-label">Username:</span>
+                            <span class="username"></span>
+                            <span class="badge">N/A</span>
+                            <span class="game"></span>
                         </div>
                     </div>
 
@@ -190,9 +192,6 @@ function render(list, preSelected = []) {
             `;
 
             container.appendChild(el);
-
-            setTimeout(() => el.classList.remove("fade-in"), 200);
-
             bindEvents(el, c.pid);
         }
 
@@ -202,7 +201,6 @@ function render(list, preSelected = []) {
     updateCount();
 }
 
-/* 🔥 更新卡片 */
 function updateCard(el, c, isSelected) {
     el.classList.toggle("selected", isSelected);
 
@@ -210,7 +208,7 @@ function updateCard(el, c, isSelected) {
     el.querySelector(".pid").innerText = "# PID: " + c.pid;
 
     el.querySelector(".username").innerText = c.username || ("Client " + c.index);
-    el.querySelector(".label").innerText = c.game || "Unknown Game";
+    el.querySelector(".game").innerText = c.game || "Unknown Game";
 
     const status = el.querySelector(".status");
 
@@ -226,7 +224,6 @@ function updateCard(el, c, isSelected) {
         c.avatar || "https://www.roblox.com/headshot-thumbnail/image?userId=1&width=150&height=150&format=png";
 }
 
-/* 🔥 綁事件 */
 function bindEvents(el, pid) {
     const checkbox = el.querySelector(".check");
 
@@ -238,7 +235,6 @@ function bindEvents(el, pid) {
     el.addEventListener("click", () => toggle(pid));
 }
 
-/* toggle */
 function toggle(pid) {
     if (selected.has(pid)) selected.delete(pid);
     else selected.add(pid);
@@ -247,7 +243,6 @@ function toggle(pid) {
     send();
 }
 
-/* 更新全部 */
 function updateAll() {
     clients.forEach(c => {
         const el = document.getElementById("client-" + c.pid);
@@ -257,7 +252,6 @@ function updateAll() {
     updateCount();
 }
 
-/* select all */
 function selectAll() {
     clients.forEach(c => selected.add(c.pid));
     updateAll();
@@ -270,23 +264,20 @@ function deselectAll() {
     send();
 }
 
-/* count */
 function updateCount() {
     document.getElementById("count").innerText =
         selected.size + " of " + clients.length + " selected";
 }
 
-/* 傳給 WinForm */
 function send() {
     if (window.chrome && window.chrome.webview) {
         window.chrome.webview.postMessage(JSON.stringify({
-            type: "selection",
-            pids: Array.from(selected)
+            type:"selection",
+            pids:Array.from(selected)
         }));
     }
 }
 
-/* API */
 window.ClientAPI = {
     setClients: function (list, selectedList) {
         render(list, selectedList || []);
