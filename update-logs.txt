@@ -1,1 +1,1 @@
-The injector has been updated to version 0.9.5\nsupporting the latest Roblox version\nThe left-side menu style has been updated\nA new Dashboard has been added
+Update pagination animation
