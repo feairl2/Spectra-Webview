@@ -1,1 +1,1 @@
-Update pagination animation
+The injector has been updated to version 0.9.5\nSupporting the latest Roblox version\nThe left-side menu style has been updated\nA new homepage has been added\nPagination animations have been updated
