@@ -77,10 +77,10 @@
 
     .tab {
       position: relative;
-      height: 30px;
-      padding: 0 15px;
-      border-radius: var(--r-sm);
-      font-size: 12px;
+      height: 35px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-size: 14px;
       font-weight: 500;
       letter-spacing: 0.03em;
       cursor: pointer;
@@ -125,7 +125,6 @@
       cursor: not-allowed;
     }
 
-    /* Window controls */
     .win-btns {
       display: flex;
       align-items: center;
@@ -149,11 +148,15 @@
       flex-shrink: 0;
     }
 
-    .win-btn i { width: 12px; height: 12px; }
+    .win-btn i { width: 14px; height: 14px; }
+
+.win-btn svg {
+    width: 14px;
+    height: 14px;
+}
 
     .win-btn:hover {
       background: var(--bg4);
-      border-color: var(--accent-d);
       color: var(--text2);
     }
 
@@ -225,7 +228,7 @@
     .btn {
       height: 34px;
       padding: 0 14px;
-      border-radius: var(--r-sm);
+      border-radius: 6px;
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       font-weight: 500;
@@ -297,43 +300,12 @@
       flex-shrink: 0;
     }
 
-    /* Monaco */
     #monaco-wrapper {
       flex: 1;
       position: relative;
       overflow: hidden;
     }
     #monaco-editor { width: 100%; height: 100%; }
-
-    /* ── Explorer ── */
-    #explorer {
-      width: 210px;
-      min-width: 160px;
-      background: var(--bg2);
-      border-left: 1px solid var(--border-s);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .explorer-head {
-      height: 40px;
-      padding: 0 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-s);
-      flex-shrink: 0;
-    }
-
-    .explorer-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      color: var(--text3);
-    }
 
     .ex-actions { display: flex; gap: 3px; }
 
@@ -510,50 +482,7 @@
         </div>
       </div>
 
-      <div id="explorer">
-        <div class="explorer-head">
-          <span class="explorer-title">Explorer</span>
-          <div class="ex-actions">
-            <div class="ex-icn" title="Refresh" onclick="explorerRefresh()">
-              <i data-lucide="refresh-cw"></i>
-            </div>
-            <div class="ex-icn" title="Collapse all" onclick="explorerCollapseAll()">
-              <i data-lucide="fold-vertical"></i>
-            </div>
-          </div>
-        </div>
-
-        <div id="explorer-tree">
-          <div class="ex-section open" id="section-scripts">
-            <div class="ex-sec-hd" onclick="toggleSection('section-scripts')">
-              <i data-lucide="chevron-right" class="caret"></i>
-              <i data-lucide="scroll-text"></i>
-              Scripts
-            </div>
-            <div class="ex-items" id="scripts-list">
-              <div class="ex-empty">No scripts</div>
-            </div>
-          </div>
-
-          <div class="ex-section open" id="section-game">
-            <div class="ex-sec-hd" onclick="toggleSection('section-game')">
-              <i data-lucide="chevron-right" class="caret"></i>
-              <i data-lucide="box"></i>
-              Game Objects
-            </div>
-            <div class="ex-items" id="game-list">
-              <div class="ex-empty">Not attached</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="explorer-foot">
-          <div class="s-dot off" id="status-dot"></div>
-          <span id="status-text">Detached</span>
-        </div>
-      </div>
-    </div>
-
+      
     <div class="page page-placeholder" id="page-scripthub">
       <div class="ph-icon"><i data-lucide="library"></i></div>
       <div class="ph-label">ScriptHub — Coming Soon</div>
@@ -720,7 +649,7 @@
           value: `-- SPECTRA Executor\nlocal Players = game:GetService("Players")\nlocal localPlayer = Players.LocalPlayer\n\n-- Example: speed script\nlocal function setSpeed(speed)\n    localPlayer.Character.Humanoid.WalkSpeed = speed\nend\n\nsetSpeed(32)\nprint("Injected by SPECTRA")`,
           language: 'lua',
           theme: 'spectra',
-          fontSize: 13,
+          fontSize: 14,
           lineHeight: 20,
           fontFamily: 'Consolas, "Courier New", monospace',
           minimap: { enabled: true, scale: 1, renderCharacters: false, maxColumn: 80 },
