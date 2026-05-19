@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPECTRA</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg:       #18140f;
+      --bg2:      #1f1b14;
+      --bg3:      #26211a;
+      --bg4:      #2e2820;
+      --bg5:      #352e24;
+      --border-s: #3e3628;
+      --accent:   #cc8844;
+      --accent-h: #d9985c;
+      --accent-d: #b07030;
+      --text:     #ede4d8;
+      --text2:    #a8957e;
+      --text3:    #6b5c48;
+      --text4:    #4a3e30;
+      --danger:   #c0503a;
+      --success:  #6a9e6a;
+      --r:        8px;
+      --r-sm:     5px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Titlebar ── */
+    #titlebar {
+      height: 46px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border-s);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 10px 0 16px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+      -webkit-app-region: drag;
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: 650;
+      letter-spacing: 0.1em;
+      color: #ddd0c0;
+      text-transform: uppercase;
+      -webkit-app-region: no-drag;
+    }
+
+    .tabbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      -webkit-app-region: no-drag;
+    }
+
+    .tab {
+      position: relative;
+      height: 30px;
+      padding: 0 15px;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text3);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+      -webkit-app-region: no-drag;
+      white-space: nowrap;
+    }
+
+    .tab i { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .tab:hover:not(.disabled):not(.active) {
+      color: var(--text2);
+      background: var(--bg3);
+      border-color: var(--border-s);
+    }
+
+    .tab.active {
+      color: var(--accent-h);
+      background: var(--bg3);
+      border-color: var(--border-s);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 14px;
+      right: 14px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .tab.disabled {
+      color: var(--text4);
+      cursor: not-allowed;
+    }
+
+    /* Window controls */
+    .win-btns {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: flex-end;
+      -webkit-app-region: no-drag;
+    }
+
+    .win-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--r-sm);
+      background: var(--bg3);
+      border: 1px solid var(--border-s);
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .win-btn i { width: 12px; height: 12px; }
+
+    .win-btn:hover {
+      background: var(--bg4);
+      border-color: var(--accent-d);
+      color: var(--text2);
+    }
+
+    .win-btn.close:hover {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    /* ── Content ── */
+    #content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page { display: none; width: 100%; height: 100%; }
+    .page.active { display: flex; }
+
+    .page-placeholder {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .ph-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border-s);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text4);
+    }
+    .ph-icon i { width: 20px; height: 20px; }
+
+    .ph-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text4);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Editor ── */
+    #page-editor { flex-direction: row; }
+
+    #editor-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Toolbar */
+    #toolbar {
+      height: 52px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border-s);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: var(--r-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      border: 1px solid var(--border-s);
+      background: var(--bg3);
+      color: var(--text2);
+      transition: background 0.14s, border-color 0.14s, color 0.14s, box-shadow 0.14s;
+    }
+
+    .btn i {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.btn svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+    .btn:hover {
+      background: var(--bg4);
+      color: var(--text);
+      box-shadow: 0 0 0 1px var(--accent-d)30;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #18140f;
+      font-weight: 600;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-h);
+      border-color: var(--accent-h);
+      box-shadow: 0 0 0 3px var(--accent)30;
+      color: #18140f;
+    }
+
+    #toolbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn.attach.attached {
+      border-color: var(--success);
+      color: #90d89a;
+    }
+    .btn.attach.attached:hover {
+      background: var(--bg4);
+      border-color: var(--success);
+      box-shadow: 0 0 0 1px var(--success)30;
+      color: #a8f0b0;
+    }
+
+    .tb-sep {
+      width: 1px;
+      height: 22px;
+      background: var(--border-s);
+      margin: 0 2px;
+      flex-shrink: 0;
+    }
+
+    /* Monaco */
+    #monaco-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #monaco-editor { width: 100%; height: 100%; }
+
+    /* ── Explorer ── */
+    #explorer {
+      width: 210px;
+      min-width: 160px;
+      background: var(--bg2);
+      border-left: 1px solid var(--border-s);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .explorer-head {
+      height: 40px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-s);
+      flex-shrink: 0;
+    }
+
+    .explorer-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    .ex-actions { display: flex; gap: 3px; }
+
+    .ex-icn {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--r-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.13s, color 0.13s, border-color 0.13s;
+    }
+    .ex-icn i { width: 12px; height: 12px; }
+    .ex-icn:hover {
+      background: var(--bg4);
+      border-color: var(--border-s);
+      color: var(--accent-h);
+    }
+
+    #explorer-tree {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+    #explorer-tree::-webkit-scrollbar { width: 3px; }
+    #explorer-tree::-webkit-scrollbar-track { background: transparent; }
+    #explorer-tree::-webkit-scrollbar-thumb { background: var(--border-s); border-radius: 2px; }
+
+    .ex-section { margin-bottom: 2px; }
+
+    .ex-sec-hd {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      cursor: pointer;
+      transition: color 0.12s;
+    }
+    .ex-sec-hd:hover { color: var(--text2); }
+    .ex-sec-hd i { width: 10px; height: 10px; }
+    .ex-sec-hd .caret { transition: transform 0.15s; }
+    .ex-section.open .ex-sec-hd .caret { transform: rotate(90deg); }
+
+    .ex-items { }
+
+    .ex-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px 5px 24px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+      border-radius: var(--r-sm);
+      margin: 1px 6px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .ex-item i { width: 12px; height: 12px; color: var(--text3); flex-shrink: 0; }
+    .ex-item:hover { background: var(--bg4); color: var(--text); }
+    .ex-item.active { background: var(--bg4); color: var(--accent-h); }
+    .ex-item.active i { color: var(--accent); }
+
+    .ex-empty {
+      padding: 8px 12px 8px 24px;
+      font-size: 11px;
+      color: var(--text4);
+      font-style: italic;
+    }
+
+    .explorer-foot {
+      height: 34px;
+      border-top: 1px solid var(--border-s);
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10.5px;
+      color: var(--text3);
+    }
+
+    .s-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text4);
+      flex-shrink: 0;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .s-dot.on  { background: var(--success); box-shadow: 0 0 5px var(--success)88; }
+    .s-dot.off { background: var(--danger); }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-s); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <div id="titlebar">
+    <span class="brand">SPECTRA</span>
+
+    <nav class="tabbar">
+      <div class="tab disabled" data-tab="home">
+        <i data-lucide="house"></i> Home
+      </div>
+      <div class="tab active" data-tab="editor" onclick="switchTab('editor')">
+        <i data-lucide="code-2"></i> Editor
+      </div>
+      <div class="tab disabled" data-tab="scripthub">
+        <i data-lucide="library"></i> ScriptHub
+      </div>
+      <div class="tab disabled" data-tab="settings">
+        <i data-lucide="sliders-horizontal"></i> Settings
+      </div>
+    </nav>
+
+    <div class="win-btns">
+      <div class="win-btn" title="Minimize" onclick="winAction('minimize')">
+        <i data-lucide="minus"></i>
+      </div>
+      <div class="win-btn" title="Maximize" onclick="winAction('maximize')">
+        <i data-lucide="square"></i>
+      </div>
+      <div class="win-btn close" title="Close" onclick="winAction('close')">
+        <i data-lucide="x"></i>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <div class="page page-placeholder" id="page-home">
+      <div class="ph-icon"><i data-lucide="house"></i></div>
+      <div class="ph-label">Home — Coming Soon</div>
+    </div>
+
+    <div class="page active" id="page-editor">
+      <div id="editor-main">
+        <div id="toolbar">
+          <button class="btn primary" onclick="tbAction('execute')">
+            <i data-lucide="play"></i> Execute
+          </button>
+          <div class="tb-sep"></div>
+          <button class="btn" onclick="tbAction('clear')">
+            <i data-lucide="eraser"></i> Clear
+          </button>
+          <button class="btn" onclick="tbAction('open')">
+            <i data-lucide="folder-open"></i> Open
+          </button>
+          <button class="btn" onclick="tbAction('save')">
+            <i data-lucide="save"></i> Save
+          </button>
+
+          <div id="toolbar-right">
+            <button class="btn attach" id="attach-btn" onclick="tbAction('attach')">
+              <i data-lucide="zap"></i>
+              <span id="attach-label">Attach</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="monaco-wrapper">
+          <div id="monaco-editor"></div>
+        </div>
+      </div>
+
+      <div id="explorer">
+        <div class="explorer-head">
+          <span class="explorer-title">Explorer</span>
+          <div class="ex-actions">
+            <div class="ex-icn" title="Refresh" onclick="explorerRefresh()">
+              <i data-lucide="refresh-cw"></i>
+            </div>
+            <div class="ex-icn" title="Collapse all" onclick="explorerCollapseAll()">
+              <i data-lucide="fold-vertical"></i>
+            </div>
+          </div>
+        </div>
+
+        <div id="explorer-tree">
+          <div class="ex-section open" id="section-scripts">
+            <div class="ex-sec-hd" onclick="toggleSection('section-scripts')">
+              <i data-lucide="chevron-right" class="caret"></i>
+              <i data-lucide="scroll-text"></i>
+              Scripts
+            </div>
+            <div class="ex-items" id="scripts-list">
+              <div class="ex-empty">No scripts</div>
+            </div>
+          </div>
+
+          <div class="ex-section open" id="section-game">
+            <div class="ex-sec-hd" onclick="toggleSection('section-game')">
+              <i data-lucide="chevron-right" class="caret"></i>
+              <i data-lucide="box"></i>
+              Game Objects
+            </div>
+            <div class="ex-items" id="game-list">
+              <div class="ex-empty">Not attached</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="explorer-foot">
+          <div class="s-dot off" id="status-dot"></div>
+          <span id="status-text">Detached</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page page-placeholder" id="page-scripthub">
+      <div class="ph-icon"><i data-lucide="library"></i></div>
+      <div class="ph-label">ScriptHub — Coming Soon</div>
+    </div>
+
+    <div class="page page-placeholder" id="page-settings">
+      <div class="ph-icon"><i data-lucide="sliders-horizontal"></i></div>
+      <div class="ph-label">Settings — Coming Soon</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  function switchTab(name) {
+    ['home','editor','scripthub','settings'].forEach(p =>
+      document.getElementById('page-'+p).classList.remove('active')
+    );
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    const el = document.querySelector(`[data-tab="${name}"]`);
+    if (el && !el.classList.contains('disabled')) el.classList.add('active');
+    if (name === 'editor' && window._editor) setTimeout(() => window._editor.layout(), 30);
+  }
+
+  function winAction(action) { post({ type: 'window', action }); }
+
+  function tbAction(action) {
+    const code = window._editor ? window._editor.getValue() : '';
+    post({ type: 'toolbar', action, code });
+    if (action === 'clear' && window._editor) window._editor.setValue('');
+  }
+
+  function post(obj) {
+    if (window.chrome?.webview) window.chrome.webview.postMessage(JSON.stringify(obj));
+    else console.log('[SPECTRA]', obj);
+  }
+
+  function toggleSection(id) {
+    document.getElementById(id).classList.toggle('open');
+    lucide.createIcons();
+  }
+
+  function explorerRefresh() { post({ type: 'explorer', action: 'refresh' }); }
+  function explorerCollapseAll() {
+    document.querySelectorAll('.ex-section').forEach(s => s.classList.remove('open'));
+  }
+
+  window.executorAPI = {
+    setCode(code) { if (window._editor) window._editor.setValue(code); },
+    getCode() { return window._editor ? window._editor.getValue() : ''; },
+    setAttached(isAttached) {
+      const dot  = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      const btn  = document.getElementById('attach-btn');
+      const lbl  = document.getElementById('attach-label');
+      if (isAttached) {
+        dot.className = 's-dot on';
+        text.textContent = 'Attached';
+        lbl.textContent = 'Detach';
+        btn.classList.add('attached');
+      } else {
+        dot.className = 's-dot off';
+        text.textContent = 'Detached';
+        lbl.textContent = 'Attach';
+        btn.classList.remove('attached');
+      }
+    },
+    setScripts(scripts) {
+      const list = document.getElementById('scripts-list');
+      list.innerHTML = '';
+      if (!scripts?.length) { list.innerHTML = '<div class="ex-empty">No scripts</div>'; return; }
+      scripts.forEach((s, i) => {
+        const el = document.createElement('div');
+        el.className = 'ex-item';
+        el.innerHTML = `<i data-lucide="file-code"></i>${s.name}`;
+        el.onclick = () => {
+          list.querySelectorAll('.ex-item').forEach(x => x.classList.remove('active'));
+          el.classList.add('active');
+          if (s.content !== undefined && window._editor) window._editor.setValue(s.content);
+          post({ type: 'explorer', action: 'selectScript', index: i, name: s.name });
+        };
+        list.appendChild(el);
+        lucide.createIcons();
+      });
+    },
+    setGameObjects(objects) {
+      const list = document.getElementById('game-list');
+      list.innerHTML = '';
+      if (!objects?.length) { list.innerHTML = '<div class="ex-empty">Not attached</div>'; return; }
+      objects.forEach(name => {
+        const el = document.createElement('div');
+        el.className = 'ex-item';
+        el.innerHTML = `<i data-lucide="box"></i>${name}`;
+        list.appendChild(el);
+      });
+      lucide.createIcons();
+    }
+  };
+
+  if (window.chrome?.webview) {
+    window.chrome.webview.addEventListener('message', e => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'setCode')        window.executorAPI.setCode(msg.code);
+        if (msg.type === 'setAttached')    window.executorAPI.setAttached(msg.value);
+        if (msg.type === 'setScripts')     window.executorAPI.setScripts(msg.scripts);
+        if (msg.type === 'setGameObjects') window.executorAPI.setGameObjects(msg.objects);
+      } catch(err) { console.error(err); }
+    });
+  }
+</script>
+
+<script>
+  (function() {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
+    s.onload = () => {
+      require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+      require(['vs/editor/editor.main'], () => {
+        monaco.editor.defineTheme('spectra', {
+          base: 'vs-dark',
+          inherit: true,
+          rules: [
+            { token: '',           foreground: 'ede4d8', background: '18140f' },
+            { token: 'comment',    foreground: '5a4c3a', fontStyle: 'italic' },
+            { token: 'keyword',    foreground: 'cc8844', fontStyle: 'bold' },
+            { token: 'string',     foreground: '94b878' },
+            { token: 'number',     foreground: 'd4b870' },
+            { token: 'type',       foreground: 'a890c8' },
+            { token: 'identifier', foreground: 'ddd2c4' },
+            { token: 'delimiter',  foreground: '88786a' },
+            { token: 'operator',   foreground: 'b87848' },
+            { token: 'function',   foreground: 'e0c090' },
+          ],
+          colors: {
+            'editor.background':                  '#18140f',
+            'editor.foreground':                  '#ede4d8',
+            'editorLineNumber.foreground':        '#3e3020',
+            'editorLineNumber.activeForeground':  '#7a6244',
+            'editor.lineHighlightBackground':     '#1f1b1480',
+            'editor.selectionBackground':         '#cc884433',
+            'editor.inactiveSelectionBackground': '#cc884418',
+            'editorCursor.foreground':            '#cc8844',
+            'editorWhitespace.foreground':        '#2e2820',
+            'editorIndentGuide.background':       '#2e2820',
+            'editorIndentGuide.activeBackground': '#3e3020',
+            'scrollbar.shadow':                   '#00000000',
+            'scrollbarSlider.background':         '#38302488',
+            'scrollbarSlider.hoverBackground':    '#4a3c2caa',
+            'scrollbarSlider.activeBackground':   '#cc884460',
+            'minimap.background':                 '#18140f',
+            'minimapSlider.background':           '#38302455',
+            'minimapSlider.hoverBackground':      '#3830248a',
+            'editorGutter.background':            '#18140f',
+            'editorBracketMatch.background':      '#cc884422',
+            'editorBracketMatch.border':          '#cc884466',
+          }
+        });
+
+        window._editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+          value: `-- SPECTRA Executor\nlocal Players = game:GetService("Players")\nlocal localPlayer = Players.LocalPlayer\n\n-- Example: speed script\nlocal function setSpeed(speed)\n    localPlayer.Character.Humanoid.WalkSpeed = speed\nend\n\nsetSpeed(32)\nprint("Injected by SPECTRA")`,
+          language: 'lua',
+          theme: 'spectra',
+          fontSize: 13,
+          lineHeight: 20,
+          fontFamily: 'Consolas, "Courier New", monospace',
+          minimap: { enabled: true, scale: 1, renderCharacters: false, maxColumn: 80 },
+          scrollBeyondLastLine: false,
+          renderLineHighlight: 'line',
+          smoothScrolling: true,
+          cursorSmoothCaretAnimation: 'on',
+          cursorBlinking: 'smooth',
+          padding: { top: 14, bottom: 14 },
+          lineNumbersMinChars: 3,
+          glyphMargin: false,
+          folding: true,
+          bracketPairColorization: { enabled: true },
+          autoClosingBrackets: 'always',
+          autoClosingQuotes: 'always',
+          tabSize: 4,
+          wordWrap: 'off',
+          scrollbar: { vertical: 'auto', horizontal: 'auto', verticalScrollbarSize: 5, horizontalScrollbarSize: 5 },
+          overviewRulerLanes: 0,
+          hideCursorInOverviewRuler: true,
+          overviewRulerBorder: false,
+        });
+
+        const ro = new ResizeObserver(() => window._editor.layout());
+        ro.observe(document.getElementById('monaco-wrapper'));
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+
+</body>
+</html>
