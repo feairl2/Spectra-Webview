@@ -1,1 +1,1 @@
-New Logo\nImproved Hover style for the Control button
+Supports the latest version of Roblox\nInjector version updated to 0.9.7\nWhen enabling a downgraded version of Roblox, user confirmation will be required
