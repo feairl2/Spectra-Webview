@@ -1,1 +1,1 @@
-Change the automatic Roblox downgrade to a background process and add a progress bar to the notification\nfix the DPI display issue\nDelete unnecessary files
+Spectra API updated to 1.0.1\nFixed TP handler performing cleanup when a TP fails causing the environment to be terminated\nPatched 4 detections on hookfunction\nFixed newcclosure not applying the original function name\nFixed ZIndexing on Drawing library\nFixed Updater\nFixed missing file error\nFixed jagged text issue\nFixed webview scaling issue
